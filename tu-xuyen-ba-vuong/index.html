@@ -719,7 +719,7 @@ TruyenQQ
 
                           <td class="p-3"><a href="sa-do-yeon/chap5/index.html" class="hover:text-blue-400 transition"> Chương 5</a></td>
 
-                          <td class="p-3 text-gray-500 italic text-xs">1 ngày 21 giờ trước</td>
+                          <td class="p-3 text-gray-500 italic text-xs">11 ngày 20 giờ trước</td>
 
                           <td class="p-3 text-center text-gray-500 font-mono">0</td>
 
@@ -735,7 +735,7 @@ TruyenQQ
 
                           <td class="p-3"><a href="sa-do-yeon/chap4/index.html" class="hover:text-blue-400 transition"> Chương 4</a></td>
 
-                          <td class="p-3 text-gray-500 italic text-xs">1 ngày 21 giờ trước</td>
+                          <td class="p-3 text-gray-500 italic text-xs">11 ngày 20 giờ trước</td>
 
                           <td class="p-3 text-center text-gray-500 font-mono">0</td>
 
@@ -751,7 +751,7 @@ TruyenQQ
 
                           <td class="p-3"><a href="sa-do-yeon/chap3/index.html" class="hover:text-blue-400 transition"> Chương 3</a></td>
 
-                          <td class="p-3 text-gray-500 italic text-xs">1 ngày 21 giờ trước</td>
+                          <td class="p-3 text-gray-500 italic text-xs">11 ngày 20 giờ trước</td>
 
                           <td class="p-3 text-center text-gray-500 font-mono">0</td>
 
@@ -767,7 +767,7 @@ TruyenQQ
 
                           <td class="p-3"><a href="sa-do-yeon/chap2/index.html" class="hover:text-blue-400 transition"> Chương 2</a></td>
 
-                          <td class="p-3 text-gray-500 italic text-xs">1 ngày 21 giờ trước</td>
+                          <td class="p-3 text-gray-500 italic text-xs">11 ngày 20 giờ trước</td>
 
                           <td class="p-3 text-center text-gray-500 font-mono">0</td>
 
@@ -783,7 +783,7 @@ TruyenQQ
 
                           <td class="p-3"><a href="sa-do-yeon/chap1/index.html" class="hover:text-blue-400 transition"> Chương 1</a></td>
 
-                          <td class="p-3 text-gray-500 italic text-xs">1 ngày 21 giờ trước</td>
+                          <td class="p-3 text-gray-500 italic text-xs">11 ngày 20 giờ trước</td>
 
                           <td class="p-3 text-center text-gray-500 font-mono">0</td>
 
@@ -1100,7 +1100,42 @@ document.addEventListener('click', (e) => {
     }
 });
     </script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+const firebaseConfig = {
+  apiKey: "AIzaSyCLhI_Tk5q-4pURIbZFRG7ZkZAaP5S-vcc",
+  authDomain: "test-70fe9.firebaseapp.com",
+  projectId: "test-70fe9",
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const slug = "tu-xuyen-ba-vuong"; // đổi theo từng truyện
+const viewRef = doc(db, "views", slug);
+
+// 👉 1. HIỂN THỊ VIEW
+const snap = await getDoc(viewRef);
+if (snap.exists()) {
+  document.getElementById("view-count").innerText = snap.data().count;
+} else {
+  await setDoc(viewRef, { count: 1 });
+  document.getElementById("view-count").innerText = 1;
+}
+
+// 👉 2. CHỐNG SPAM (5 phút mới tính 1 lần)
+const lastView = localStorage.getItem("view_" + slug);
+const now = Date.now();
+
+if (!lastView || now - lastView > 5 * 60 * 1000) {
+  await updateDoc(viewRef, {
+    count: increment(1)
+  });
+  localStorage.setItem("view_" + slug, now);
+}
+</script>
   </body>
 
 </html>
