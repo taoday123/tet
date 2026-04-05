@@ -595,7 +595,7 @@ body.dark-mode header{background:#2c3e50;}
 
                   </p>
 
-                  <p><i class="fa fa-eye w-6 text-purple-500"></i> <strong>Lượt xem:</strong> <span class="text-gray-300 font-mono">0</span></p>
+                  <p><i class="fa fa-eye w-6 text-purple-500"></i> <strong>Lượt xem:</strong> <span id="view-count" class="text-gray-300 font-mono">0</span></p>
 
                 </div>
 
@@ -1113,19 +1113,21 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-const slug = "tu-xuyen-ba-vuong"; // đổi theo từng truyện
+const slug = "tu-xuyen-ba-vuong";
 const viewRef = doc(db, "views", slug);
 
-// 👉 1. HIỂN THỊ VIEW
-const snap = await getDoc(viewRef);
-if (snap.exists()) {
-  document.getElementById("view-count").innerText = snap.data().count;
-} else {
-  await setDoc(viewRef, { count: 1 });
-  document.getElementById("view-count").innerText = 1;
+// 👉 đảm bảo có document
+let snap = await getDoc(viewRef);
+if (!snap.exists()) {
+  await setDoc(viewRef, { count: 0 });
+  snap = await getDoc(viewRef);
 }
 
-// 👉 2. CHỐNG SPAM (5 phút mới tính 1 lần)
+// 👉 hiển thị view hiện tại
+let current = snap.data().count;
+document.getElementById("view-count").innerText = current;
+
+// 👉 chống spam 5 phút
 const lastView = localStorage.getItem("view_" + slug);
 const now = Date.now();
 
@@ -1133,7 +1135,11 @@ if (!lastView || now - lastView > 5 * 60 * 1000) {
   await updateDoc(viewRef, {
     count: increment(1)
   });
+
   localStorage.setItem("view_" + slug, now);
+
+  // 👉 update realtime luôn
+  document.getElementById("view-count").innerText = current + 1;
 }
 </script>
   </body>
